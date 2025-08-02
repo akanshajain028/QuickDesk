@@ -1,121 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickDesk - Login</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e0eafc, #cfdef3);
-      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
     }
-
     .login-container {
-      background: #fff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 400px;
     }
-
     .login-container h2 {
+      margin-bottom: 20px;
       text-align: center;
       color: #0d6efd;
-      margin-bottom: 10px;
     }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .login-form input,
-    .login-form select {
+    .login-container input,
+    .login-container select {
+      width: 100%;
       padding: 12px;
-      font-size: 14px;
-      border-radius: 6px;
+      margin-bottom: 15px;
+      border-radius: 5px;
       border: 1px solid #ccc;
     }
-
-    .login-form button {
+    .login-container button {
+      width: 100%;
       padding: 12px;
-      background-color: #0d6efd;
+      background: #0d6efd;
       color: white;
-      font-weight: bold;
-      font-size: 15px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
+      font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
     }
-
-    .login-form button:hover {
-      background-color: #084fc7;
+    .login-container button:hover {
+      background: #084fc7;
     }
-
-    .login-form p {
+    .login-container .register-link {
+      margin-top: 15px;
       text-align: center;
-      font-size: 14px;
-      margin: 0;
     }
-
-    #loginError {
-      color: red;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    ul {
-      font-size: 13px;
-    }
-
-    a {
+    .login-container .register-link a {
       color: #0d6efd;
       text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="login-container">
     <h2>Login to QuickDesk</h2>
-    <form id="loginForm" class="login-form">
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <select id="role" required>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <select id="role">
         <option value="">Select Role</option>
-        <option value="employee">Employee</option>
-        <option value="agent">Agent</option>
         <option value="admin">Admin</option>
+        <option value="agent">Agent</option>
+        <option value="employee">Employee</option>
       </select>
       <button type="submit">Login</button>
-      <p id="loginError"></p>
-      <p>Don't have an account? <a href="register.html">Register here</a></p>
-      <div style="margin-top: 10px; font-size: 14px;">
-        <strong>Sample Users:</strong>
-        <ul style="padding-left: 16px; margin: 8px 0;">
-          <li>Admin: <code>admin@example.com</code> / <code>admin123</code></li>
-          <li>Agent: <code>agent@example.com</code> / <code>agent123</code></li>
-          <li>Employee: <code>user@example.com</code> / <code>user123</code></li>
-        </ul>
-      </div>
     </form>
+
+    <div class="register-link">
+      <p>Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
+
+      if (!role) {
+        alert("Please select a role.");
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Add sample users if none exist
+      if (users.length === 0) {
+        users = [
+          { name: "Admin User", email: "admin@example.com", password: "admin123", role: "admin" },
+          { name: "Agent User", email: "agent@example.com", password: "agent123", role: "agent" },
+          { name: "Employee User", email: "employee@example.com", password: "emp123", role: "employee" }
+        ];
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+
+      const user = users.find(u => u.email === email && u.password === password && u.role === role);
+
+      if (user) {
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        if (user.role === "admin") {
+          window.location.href = "admin-dashboard.html";
+        } else if (user.role === "agent") {
+          window.location.href = "agent-dashboard.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      } else {
+        alert("Invalid email, password, or role. Please try again.");
+      }
+    });
+  </script>
 </body>
 </html>

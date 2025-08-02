@@ -5,39 +5,150 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ticket Details - QuickDesk</title>
   <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    .ticket-detail { background: white; padding: 20px; border-radius: 8px; max-width: 700px; margin: auto; }
+    .badge { padding: 4px 10px; border-radius: 4px; }
+    .open { background-color: #ffc107; }
+    .in-progress { background-color: #17a2b8; }
+    .resolved { background-color: #28a745; }
+    .closed { background-color: #6c757d; }
+    .conversation { margin-top: 20px; }
+    .message { margin-bottom: 15px; padding: 10px; border-radius: 6px; background: #f1f1f1; }
+    .message.agent { background: #e1f0ff; }
+    .message.user { background: #fff3cd; }
+    .reply-form textarea { width: 100%; padding: 10px; border-radius: 5px; margin-top: 20px; }
+    .reply-form button, .status-select button { margin-top: 10px; padding: 10px 15px; border: none; border-radius: 5px; background: #0d6efd; color: white; cursor: pointer; }
+    .status-select { margin-top: 20px; }
+    select { padding: 8px; border-radius: 5px; }
+  </style>
 </head>
 <body>
   <header class="navbar">
     <h1>QuickDesk</h1>
     <nav>
-      <a href="dashboard.html">Dashboard</a>
+      <a href="#" onclick="redirectToDashboard()">Dashboard</a>
       <a href="profile.html">Profile</a>
       <a href="login.html">Logout</a>
     </nav>
   </header>
 
   <main class="ticket-detail">
-    <h2>Ticket #101: Unable to Login</h2>
-    <p><strong>Status:</strong> <span class="badge open">Open</span></p>
-    <p><strong>Category:</strong> Authentication</p>
-    <p><strong>Submitted:</strong> Aug 2, 2025</p>
-    <hr/>
+    <h2 id="ticketTitle">Ticket #101</h2>
+    <p><strong>Status:</strong> <span id="ticketStatus" class="badge open">Open</span></p>
 
-    <div class="conversation">
-      <div class="message user">
-        <p><strong>You:</strong> I cannot log into my account since morning.</p>
-        <span>Aug 2, 9:00 AM</span>
-      </div>
-      <div class="message agent">
-        <p><strong>Support Agent:</strong> Noted. We are checking the issue.</p>
-        <span>Aug 2, 9:30 AM</span>
-      </div>
+    <div class="status-select" id="statusSection" style="display:none">
+      <label>Change Status:</label>
+      <select id="statusDropdown">
+        <option value="Open">Open</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <button onclick="updateStatus()">Update Status</button>
     </div>
 
-    <form class="reply-form">
-      <textarea placeholder="Reply to this ticket..." rows="4" required></textarea>
+    <p><strong>Category:</strong> <span id="ticketCategory"></span></p>
+    <p><strong>Submitted:</strong> <span id="ticketDate"></span></p>
+    <hr/>
+
+    <div class="conversation" id="conversation"></div>
+
+    <form class="reply-form" onsubmit="addComment(event)">
+      <textarea id="replyText" placeholder="Reply to this ticket..." rows="4" required></textarea>
       <button type="submit">Send Reply</button>
     </form>
   </main>
+
+  <script>
+    const ticketId = localStorage.getItem("selectedTicketId");
+    if (!ticketId) {
+      alert("No ticket selected. Please go back to dashboard and select a ticket.");
+    }
+
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    let tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+
+    function findTicketById(id) {
+      return tickets.find(t => t.id.toString() === id);
+    }
+
+    function renderTicketDetails() {
+      const ticket = findTicketById(ticketId);
+      if (!ticket) return;
+
+      document.getElementById("ticketTitle").textContent = `Ticket ${ticket.id}: ${ticket.subject}`;
+      document.getElementById("ticketCategory").textContent = ticket.category;
+      document.getElementById("ticketDate").textContent = ticket.createdAt;
+      const statusBadge = document.getElementById("ticketStatus");
+      statusBadge.textContent = ticket.status;
+      statusBadge.className = `badge ${ticket.status.toLowerCase().replace(/\s+/g, '-')}`;
+      document.getElementById("statusDropdown").value = ticket.status;
+
+      if (loggedInUser.role.toLowerCase() === "agent") {
+        document.getElementById("statusSection").style.display = "block";
+      }
+
+      const conversationDiv = document.getElementById("conversation");
+      conversationDiv.innerHTML = "";
+      (ticket.comments || []).forEach(comment => {
+        const div = document.createElement("div");
+        div.className = `message ${comment.author === loggedInUser.email ? 'user' : 'agent'}`;
+        div.innerHTML = `<p><strong>${comment.author === loggedInUser.email ? 'You' : comment.author}:</strong> ${comment.message}</p><span>${comment.time}</span>`;
+        conversationDiv.appendChild(div);
+      });
+    }
+
+    function updateStatus() {
+      if (loggedInUser.role.toLowerCase() !== "agent") {
+        alert("Only agents can update status.");
+        return;
+      }
+      const newStatus = document.getElementById("statusDropdown").value;
+      const index = tickets.findIndex(t => t.id.toString() === ticketId);
+      if (index !== -1) {
+        tickets[index].status = newStatus;
+        tickets[index].lastUpdated = new Date().toLocaleString();
+        localStorage.setItem("tickets", JSON.stringify(tickets));
+        alert("✅ Status updated to " + newStatus);
+        renderTicketDetails();
+      }
+    }
+
+    function addComment(event) {
+      event.preventDefault();
+      const index = tickets.findIndex(t => t.id.toString() === ticketId);
+      const text = document.getElementById("replyText").value.trim();
+      if (index !== -1 && text) {
+        const comment = {
+          author: loggedInUser.email,
+          message: text,
+          time: new Date().toLocaleString()
+        };
+        tickets[index].comments = tickets[index].comments || [];
+        tickets[index].comments.push(comment);
+        localStorage.setItem("tickets", JSON.stringify(tickets));
+        document.getElementById("replyText").value = "";
+        renderTicketDetails();
+      }
+    }
+
+    function redirectToDashboard() {
+      if (!loggedInUser) {
+        window.location.href = "login.html";
+        return;
+      }
+      const role = loggedInUser.role.toLowerCase();
+      if (role === "agent") {
+        window.location.href = "agent-dashboard.html";
+      } else if (role === "admin") {
+        window.location.href = "admin-dashboard.html";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    }
+
+    renderTicketDetails();
+  </script>
 </body>
 </html>

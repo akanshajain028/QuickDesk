@@ -1,4 +1,4 @@
-// Preload sample users if not already stored
+// Preload sample users once
 if (!localStorage.getItem("users")) {
   const sampleUsers = [
     { name: "Admin", email: "admin@example.com", password: "admin123", role: "admin" },
@@ -11,8 +11,9 @@ if (!localStorage.getItem("users")) {
 document.addEventListener("DOMContentLoaded", function () {
   const registerForm = document.getElementById("registerForm");
   const loginForm = document.getElementById("loginForm");
+  const createTicketForm = document.getElementById("createTicketForm");
 
-  // Register
+  // Registration
   if (registerForm) {
     registerForm.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -68,7 +69,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       loginError.textContent = "";
 
-      // Redirect based on role
       if (role === "admin") {
         window.location.href = "admin-dashboard.html";
       } else if (role === "agent") {
@@ -77,5 +77,71 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = "dashboard.html";
       }
     });
+  }
+
+  // Create Ticket
+  if (createTicketForm) {
+    createTicketForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const subject = document.getElementById("subject").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const category = document.getElementById("category").value;
+
+      const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+
+      const ticket = {
+        id: "TCK-" + Date.now(),
+        subject,
+        description,
+        category,
+        status: "Open",
+        createdAt: new Date().toLocaleString(),
+      };
+
+      tickets.push(ticket);
+      localStorage.setItem("tickets", JSON.stringify(tickets));
+
+      alert(`Ticket submitted! Your Ticket Number is: ${ticket.id}`);
+      createTicketForm.reset();
+    });
+  }
+
+  // Dashboard
+  const ticketTable = document.getElementById("ticketTable");
+  if (ticketTable) {
+    const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+
+    if (tickets.length === 0) {
+      ticketTable.innerHTML = "<p>No tickets submitted yet.</p>";
+    } else {
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Ticket No</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      tickets.forEach(t => {
+        html += `
+          <tr>
+            <td>${t.id}</td>
+            <td>${t.subject}</td>
+            <td>${t.category}</td>
+            <td>${t.status}</td>
+            <td>${t.createdAt}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      ticketTable.innerHTML = html;
+    }
   }
 });

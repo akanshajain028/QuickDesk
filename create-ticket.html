@@ -1,36 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create Ticket - QuickDesk</title>
-  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f8fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .ticket-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .ticket-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0d6efd;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea, select {
+      padding: 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #0d6efd;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0b58d9;
+    }
+  </style>
 </head>
 <body>
-  <header class="navbar">
-    <h1>QuickDesk</h1>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="profile.html">Profile</a>
-      <a href="login.html">Logout</a>
-    </nav>
-  </header>
-
-  <main class="form-page">
-    <h2>Create New Ticket</h2>
-    <form class="ticket-form">
-      <input type="text" placeholder="Subject" required />
-      <textarea placeholder="Describe your issue..." rows="5" required></textarea>
-      <select required>
+  <div class="ticket-container">
+    <h2>Create Support Ticket</h2>
+    <form id="createTicketForm">
+      <input type="text" id="subject" placeholder="Subject" required />
+      <textarea id="description" placeholder="Description" required></textarea>
+      <select id="category" required>
         <option value="">Select Category</option>
-        <option>Authentication</option>
-        <option>UI Bug</option>
-        <option>Performance</option>
-        <option>Other</option>
+        <option value="IT">IT</option>
+        <option value="HR">HR</option>
+        <option value="Finance">Finance</option>
       </select>
-      <input type="file" />
       <button type="submit">Submit Ticket</button>
     </form>
-  </main>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

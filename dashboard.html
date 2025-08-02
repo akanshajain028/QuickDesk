@@ -1,34 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QuickDesk - Dashboard</title>
+  <title>Dashboard - QuickDesk</title>
   <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+    h2 { margin-bottom: 20px; }
+    .filters {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: white;
+      font-size: 12px;
+    }
+    .badge.open { background-color: #17a2b8; }
+    .badge.in-progress { background-color: #ffc107; }
+    .badge.resolved { background-color: #28a745; }
+    .badge.closed { background-color: #6c757d; }
+    a.ticket-link {
+      color: #0d6efd;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    a.ticket-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
     <h1>QuickDesk</h1>
     <nav>
-      <a href="create-ticket.html">New Ticket</a>
+      <a href="dashboard.html">Dashboard</a>
       <a href="profile.html">Profile</a>
       <a href="login.html">Logout</a>
     </nav>
   </header>
 
   <main class="dashboard">
+    <h2>My Tickets</h2>
+
     <div class="filters">
-      <input type="text" placeholder="Search by Subject or Category..." />
-      <select>
-        <option value="all">All</option>
-        <option value="open">Open</option>
-        <option value="in-progress">In Progress</option>
-        <option value="resolved">Resolved</option>
-        <option value="closed">Closed</option>
+      <select id="statusFilter" onchange="renderUserTickets()">
+        <option value="">Filter by Status</option>
+        <option value="Open">Open</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
       </select>
-      <select>
-        <option value="latest">Latest</option>
-        <option value="most-replied">Most Replied</option>
+
+      <select id="categoryFilter" onchange="renderUserTickets()">
+        <option value="">Filter by Category</option>
       </select>
     </div>
 
@@ -37,28 +88,65 @@
         <tr>
           <th>#</th>
           <th>Subject</th>
-          <th>Category</th>
           <th>Status</th>
-          <th>Last Updated</th>
+          <th>Category</th>
+          <th>Created At</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>#101</td>
-          <td><a href="ticket.html">Unable to Login</a></td>
-          <td>Authentication</td>
-          <td><span class="badge open">Open</span></td>
-          <td>Aug 2, 2025</td>
-        </tr>
-        <tr>
-          <td>#102</td>
-          <td><a href="ticket.html">UI Bug on Dashboard</a></td>
-          <td>UI</td>
-          <td><span class="badge resolved">Resolved</span></td>
-          <td>Aug 1, 2025</td>
-        </tr>
-      </tbody>
+      <tbody id="ticketBody"></tbody>
     </table>
   </main>
+
+  <script>
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    function viewTicket(id) {
+      localStorage.setItem("selectedTicketId", id);
+      window.location.href = "ticket.html";
+    }
+
+    function renderCategoryOptions(categories) {
+      const categoryFilter = document.getElementById("categoryFilter");
+      const uniqueCategories = [...new Set(categories)];
+      categoryFilter.innerHTML = `<option value="">Filter by Category</option>`;
+      uniqueCategories.forEach(cat => {
+        categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+      });
+    }
+
+    function renderUserTickets() {
+      const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+      const tbody = document.getElementById("ticketBody");
+      const myTickets = tickets.filter(t => t.createdBy === loggedInUser.email);
+
+      const selectedStatus = document.getElementById("statusFilter").value;
+      const selectedCategory = document.getElementById("categoryFilter").value;
+
+      const filtered = myTickets.filter(t =>
+        (selectedStatus === "" || t.status === selectedStatus) &&
+        (selectedCategory === "" || t.category === selectedCategory)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No tickets found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => {
+        return `
+          <tr>
+            <td>${t.id}</td>
+            <td><a class="ticket-link" href="#" onclick="viewTicket('${t.id}')">${t.subject}</a></td>
+            <td><span class="badge ${t.status.toLowerCase().replace(/ /g, '-')}">${t.status}</span></td>
+            <td>${t.category}</td>
+            <td>${t.createdAt}</td>
+          </tr>`;
+      }).join("");
+
+      renderCategoryOptions(myTickets.map(t => t.category));
+    }
+
+    window.onload = renderUserTickets;
+  </script>
 </body>
 </html>

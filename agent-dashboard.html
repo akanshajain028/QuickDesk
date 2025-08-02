@@ -5,6 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agent Dashboard - QuickDesk</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: white;
+      font-size: 12px;
+    }
+    .badge.open { background-color: #17a2b8; }
+    .badge.in-progress { background-color: #ffc107; }
+    .badge.resolved { background-color: #28a745; }
+    .badge.closed { background-color: #6c757d; }
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .filters select, .filters input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .filters button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      background-color: #0d6efd;
+      color: white;
+      cursor: pointer;
+    }
+    .filters button:hover {
+      background-color: #0a53be;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -16,31 +73,144 @@
   </header>
 
   <main class="dashboard">
-    <h2>Assigned Tickets</h2>
+    <h2>All Submitted Tickets</h2>
+
+    <div class="filters">
+      <select id="statusFilter" onchange="renderAgentTickets()">
+        <option value="">All Statuses</option>
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Resolved</option>
+        <option>Closed</option>
+      </select>
+
+      <select id="categoryFilter" onchange="renderAgentTickets()">
+        <option value="">All Categories</option>
+      </select>
+
+      <select id="creatorFilter" onchange="renderAgentTickets()">
+        <option value="">All Users</option>
+      </select>
+
+      <select id="dateFilter" onchange="renderAgentTickets()">
+        <option value="">All Time</option>
+        <option value="today">Today</option>
+        <option value="7days">Last 7 Days</option>
+        <option value="30days">Last 30 Days</option>
+      </select>
+
+      <input type="text" id="searchInput" oninput="renderAgentTickets()" placeholder="Search by subject..."/>
+
+      <button onclick="resetFilters()">Reset Filters</button>
+    </div>
+
     <table class="ticket-table">
       <thead>
         <tr>
           <th>#</th>
           <th>Subject</th>
           <th>Status</th>
-          <th>Action</th>
+          <th>Category</th>
+          <th>Created By</th>
+          <th>Last Updated</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>#104</td>
-          <td><a href="ticket.html">Error in payment processing</a></td>
-          <td><span class="badge in-progress">In Progress</span></td>
-          <td><button class="small-btn">Update</button></td>
-        </tr>
-        <tr>
-          <td>#107</td>
-          <td><a href="ticket.html">Unable to upload documents</a></td>
-          <td><span class="badge open">Open</span></td>
-          <td><button class="small-btn">Assign</button></td>
-        </tr>
-      </tbody>
+      <tbody id="agentTicketBody"></tbody>
     </table>
   </main>
+
+  <script>
+    function getUserNameByEmail(email) {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(u => u.email === email);
+      return user ? user.name : "Unknown";
+    }
+
+    function viewTicket(id) {
+      localStorage.setItem("selectedTicketId", id);
+      window.location.href = "ticket.html";
+    }
+
+    function resetFilters() {
+      document.getElementById("statusFilter").value = "";
+      document.getElementById("categoryFilter").value = "";
+      document.getElementById("creatorFilter").value = "";
+      document.getElementById("dateFilter").value = "";
+      document.getElementById("searchInput").value = "";
+      renderAgentTickets();
+    }
+
+    function isWithinDateRange(dateString, range) {
+      const now = new Date();
+      const ticketDate = new Date(dateString);
+      const diff = (now - ticketDate) / (1000 * 60 * 60 * 24); // in days
+
+      if (range === "today") return now.toDateString() === ticketDate.toDateString();
+      if (range === "7days") return diff <= 7;
+      if (range === "30days") return diff <= 30;
+      return true;
+    }
+
+    function renderAgentTickets() {
+      const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const tbody = document.getElementById("agentTicketBody");
+
+      const statusFilter = document.getElementById("statusFilter").value;
+      const categoryFilter = document.getElementById("categoryFilter").value;
+      const creatorFilter = document.getElementById("creatorFilter").value;
+      const dateFilter = document.getElementById("dateFilter").value;
+      const searchQuery = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      const filtered = tickets.filter(t =>
+        (statusFilter === "" || t.status === statusFilter) &&
+        (categoryFilter === "" || t.category === categoryFilter) &&
+        (creatorFilter === "" || t.createdBy === creatorFilter) &&
+        isWithinDateRange(t.createdAt, dateFilter) &&
+        (searchQuery === "" || t.subject.toLowerCase().includes(searchQuery))
+      );
+
+      // Populate Category & Creator Filters once
+      const categoryDropdown = document.getElementById("categoryFilter");
+      if (categoryDropdown.options.length <= 1) {
+        [...new Set(tickets.map(t => t.category))].forEach(cat => {
+          const opt = document.createElement("option");
+          opt.value = cat;
+          opt.textContent = cat;
+          categoryDropdown.appendChild(opt);
+        });
+      }
+
+      const creatorDropdown = document.getElementById("creatorFilter");
+      if (creatorDropdown.options.length <= 1) {
+        [...new Set(tickets.map(t => t.createdBy))].forEach(email => {
+          const user = users.find(u => u.email === email);
+          const opt = document.createElement("option");
+          opt.value = email;
+          opt.textContent = user ? user.name : email;
+          creatorDropdown.appendChild(opt);
+        });
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">No matching tickets found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => `
+        <tr>
+          <td>${t.id}</td>
+          <td><a href="#" onclick="viewTicket('${t.id}')">${t.subject}</a></td>
+          <td><span class="badge ${t.status.toLowerCase().replace(/ /g, '-')}">${t.status}</span></td>
+          <td>${t.category}</td>
+          <td>${getUserNameByEmail(t.createdBy)}</td>
+          <td>${t.lastUpdated || t.createdAt}</td>
+        </tr>`).join("");
+    }
+
+    window.onload = () => {
+      renderAgentTickets();
+    };
+  </script>
 </body>
 </html>
