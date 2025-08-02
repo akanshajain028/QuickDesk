@@ -54,6 +54,40 @@
     a.ticket-link:hover {
       text-decoration: underline;
     }
+    .create-ticket-btn {
+      background-color: #0d6efd;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    .create-ticket-btn:hover {
+      background-color: #084298;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0d6efd;
+      color: white;
+      padding: 10px 20px;
+      margin-bottom: 30px;
+    }
+    .navbar h1 {
+      margin: 0;
+    }
+    .navbar nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .navbar nav a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +102,10 @@
 
   <main class="dashboard">
     <h2>My Tickets</h2>
+
+    <div style="margin-bottom: 20px; text-align: right;">
+      <a href="create-ticket.html" class="create-ticket-btn">+ Create New Ticket</a>
+    </div>
 
     <div class="filters">
       <select id="statusFilter" onchange="renderUserTickets()">

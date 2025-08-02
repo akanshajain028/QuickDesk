@@ -67,6 +67,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Store logged-in user in localStorage
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
       loginError.textContent = "";
 
       if (role === "admin") {
@@ -83,11 +85,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (createTicketForm) {
     createTicketForm.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const subject = document.getElementById("subject").value.trim();
       const description = document.getElementById("description").value.trim();
       const category = document.getElementById("category").value;
-
       const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+
+      // Get logged in user
+      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+      if (!loggedInUser) {
+        alert("You must be logged in to submit a ticket.");
+        return;
+      }
 
       const ticket = {
         id: "TCK-" + Date.now(),
@@ -96,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         category,
         status: "Open",
         createdAt: new Date().toLocaleString(),
+        createdBy: loggedInUser.email  // ✅ Add this line
       };
 
       tickets.push(ticket);
@@ -103,6 +114,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       alert(`Ticket submitted! Your Ticket Number is: ${ticket.id}`);
       createTicketForm.reset();
+
+      // Redirect to dashboard
+      window.location.href = "dashboard.html";
     });
   }
 
@@ -110,8 +124,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const ticketTable = document.getElementById("ticketTable");
   if (ticketTable) {
     const tickets = JSON.parse(localStorage.getItem("tickets")) || [];
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
-    if (tickets.length === 0) {
+    // Filter tickets created by the logged-in user
+    const userTickets = tickets.filter(t => t.createdBy === loggedInUser?.email);
+
+    if (userTickets.length === 0) {
       ticketTable.innerHTML = "<p>No tickets submitted yet.</p>";
     } else {
       let html = `
@@ -128,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <tbody>
       `;
 
-      tickets.forEach(t => {
+      userTickets.forEach(t => {
         html += `
           <tr>
             <td>${t.id}</td>
