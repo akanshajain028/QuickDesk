@@ -1,74 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickDesk - Login</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
+
     .login-container {
       background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      width: 400px;
-    }
-    .login-container h2 {
-      margin-bottom: 20px;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
       text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background-color: #0d6efd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      margin-bottom: 25px;
       color: #0d6efd;
     }
-    .login-container input,
-    .login-container select {
+
+    input, select {
       width: 100%;
       padding: 12px;
       margin-bottom: 15px;
-      border-radius: 5px;
+      border-radius: 6px;
       border: 1px solid #ccc;
+      font-size: 14px;
     }
-    .login-container button {
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper svg {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      fill: #666;
+      cursor: pointer;
+    }
+
+    button {
       width: 100%;
       padding: 12px;
       background: #0d6efd;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       font-weight: bold;
+      font-size: 15px;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
-    .login-container button:hover {
+
+    button:hover {
       background: #084fc7;
     }
-    .login-container .register-link {
+
+    .register-link {
       margin-top: 15px;
-      text-align: center;
+      font-size: 14px;
     }
-    .login-container .register-link a {
+
+    .register-link a {
       color: #0d6efd;
       text-decoration: none;
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
   <div class="login-container">
+    <div class="logo">Q</div>
     <h2>Login to QuickDesk</h2>
     <form id="loginForm">
       <input type="email" id="email" placeholder="Email" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <select id="role">
+
+      <div class="password-wrapper">
+        <input type="password" id="password" placeholder="Password" required>
+        <svg id="togglePassword" viewBox="0 0 24 24" onclick="togglePassword()">
+          <path id="eyeIcon" d="M12 4.5C7 4.5 2.7 8 1 12c1.7 4 6 7.5 11 7.5s9.3-3.5 11-7.5c-1.7-4-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0-9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/>
+        </svg>
+      </div>
+
+      <select id="role" required>
         <option value="">Select Role</option>
         <option value="admin">Admin</option>
         <option value="agent">Agent</option>
         <option value="employee">Employee</option>
       </select>
+
       <button type="submit">Login</button>
     </form>
 
@@ -78,6 +129,21 @@
   </div>
 
   <script>
+    const openEye = "M12 4.5C7 4.5 2.7 8 1 12c1.7 4 6 7.5 11 7.5s9.3-3.5 11-7.5c-1.7-4-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0-9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z";
+    const slashedEye = "M1 1l22 22M4.21 4.21A13.87 13.87 0 0 0 1 12c1.7 4 6 7.5 11 7.5 2.49 0 4.8-.73 6.72-1.98M9.53 9.53a3.5 3.5 0 0 0 4.95 4.95M12 4.5c2.76 0 5.26.94 7.22 2.5M12 19.5c-2.76 0-5.26-.94-7.22-2.5";
+
+    function togglePassword() {
+      const passwordField = document.getElementById("password");
+      const eyeIcon = document.getElementById("eyeIcon");
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        eyeIcon.setAttribute("d", slashedEye);
+      } else {
+        passwordField.type = "password";
+        eyeIcon.setAttribute("d", openEye);
+      }
+    }
+
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
@@ -91,7 +157,6 @@
 
       let users = JSON.parse(localStorage.getItem("users")) || [];
 
-      // Add sample users if none exist
       if (users.length === 0) {
         users = [
           { name: "Admin User", email: "admin@example.com", password: "admin123", role: "admin" },
@@ -105,13 +170,9 @@
 
       if (user) {
         localStorage.setItem("loggedInUser", JSON.stringify(user));
-        if (user.role === "admin") {
-          window.location.href = "admin-dashboard.html";
-        } else if (user.role === "agent") {
-          window.location.href = "agent-dashboard.html";
-        } else {
-          window.location.href = "dashboard.html";
-        }
+        window.location.href = user.role === "admin" ? "admin-dashboard.html" :
+                               user.role === "agent" ? "agent-dashboard.html" :
+                               "dashboard.html";
       } else {
         alert("Invalid email, password, or role. Please try again.");
       }

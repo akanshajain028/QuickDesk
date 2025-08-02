@@ -5,6 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile - QuickDesk</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      background: #0d6efd;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .form-page {
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .ticket-form input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .ticket-form button {
+      width: 100%;
+      padding: 12px;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .ticket-form button:hover {
+      background: #084fc7;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -18,12 +69,49 @@
 
   <main class="form-page">
     <h2>User Profile</h2>
-    <form class="ticket-form">
-      <input type="text" value="John Doe" placeholder="Full Name" />
-      <input type="email" value="john@example.com" placeholder="Email" />
-      <input type="password" placeholder="New Password" />
+    <form class="ticket-form" onsubmit="updateProfile(event)">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" disabled />
+      <input type="password" id="password" placeholder="New Password" />
       <button type="submit">Update Profile</button>
     </form>
   </main>
+
+  <script>
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    const allUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+    if (!loggedInUser) {
+      alert("No user logged in.");
+      window.location.href = "login.html";
+    }
+
+    // Populate form fields
+    document.getElementById("name").value = loggedInUser.name;
+    document.getElementById("email").value = loggedInUser.email;
+
+    function updateProfile(e) {
+      e.preventDefault();
+
+      const updatedName = document.getElementById("name").value.trim();
+      const updatedPassword = document.getElementById("password").value.trim();
+
+      const userIndex = allUsers.findIndex(user => user.email === loggedInUser.email);
+
+      if (userIndex !== -1) {
+        allUsers[userIndex].name = updatedName;
+        if (updatedPassword) {
+          allUsers[userIndex].password = updatedPassword;
+        }
+
+        // Update localStorage
+        localStorage.setItem("users", JSON.stringify(allUsers));
+        localStorage.setItem("loggedInUser", JSON.stringify(allUsers[userIndex]));
+
+        alert("✅ Profile updated successfully!");
+        document.getElementById("password").value = "";
+      }
+    }
+  </script>
 </body>
 </html>
