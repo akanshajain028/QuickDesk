@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Ticket - QuickDesk</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <h1>QuickDesk</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profile.html">Profile</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="form-page">
+    <h2>Create New Ticket</h2>
+    <form class="ticket-form">
+      <input type="text" placeholder="Subject" required />
+      <textarea placeholder="Describe your issue..." rows="5" required></textarea>
+      <select required>
+        <option value="">Select Category</option>
+        <option>Authentication</option>
+        <option>UI Bug</option>
+        <option>Performance</option>
+        <option>Other</option>
+      </select>
+      <input type="file" />
+      <button type="submit">Submit Ticket</button>
+    </form>
+  </main>
+</body>
+</html>

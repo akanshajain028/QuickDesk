@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - QuickDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <h1>QuickDesk - Admin</h1>
+    <nav>
+      <a href="dashboard.html">Home</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="dashboard">
+    <h2>User Management</h2>
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jane Smith</td>
+          <td>jane@example.com</td>
+          <td>User</td>
+          <td><button class="small-btn">Promote</button></td>
+        </tr>
+        <tr>
+          <td>Agent Kumar</td>
+          <td>kumar@support.com</td>
+          <td>Agent</td>
+          <td><button class="small-btn">Demote</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 style="margin-top: 40px;">Category Management</h2>
+    <form class="ticket-form">
+      <input type="text" placeholder="New Category Name" />
+      <button type="submit">Add Category</button>
+    </form>
+  </main>
+</body>
+</html>

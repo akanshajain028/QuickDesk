@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Dashboard - QuickDesk</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="navbar">
+    <h1>QuickDesk - Agent</h1>
+    <nav>
+      <a href="dashboard.html">My Tickets</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="dashboard">
+    <h2>Assigned Tickets</h2>
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>#104</td>
+          <td><a href="ticket.html">Error in payment processing</a></td>
+          <td><span class="badge in-progress">In Progress</span></td>
+          <td><button class="small-btn">Update</button></td>
+        </tr>
+        <tr>
+          <td>#107</td>
+          <td><a href="ticket.html">Unable to upload documents</a></td>
+          <td><span class="badge open">Open</span></td>
+          <td><button class="small-btn">Assign</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

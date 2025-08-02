@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ticket Details - QuickDesk</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <h1>QuickDesk</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profile.html">Profile</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="ticket-detail">
+    <h2>Ticket #101: Unable to Login</h2>
+    <p><strong>Status:</strong> <span class="badge open">Open</span></p>
+    <p><strong>Category:</strong> Authentication</p>
+    <p><strong>Submitted:</strong> Aug 2, 2025</p>
+    <hr/>
+
+    <div class="conversation">
+      <div class="message user">
+        <p><strong>You:</strong> I cannot log into my account since morning.</p>
+        <span>Aug 2, 9:00 AM</span>
+      </div>
+      <div class="message agent">
+        <p><strong>Support Agent:</strong> Noted. We are checking the issue.</p>
+        <span>Aug 2, 9:30 AM</span>
+      </div>
+    </div>
+
+    <form class="reply-form">
+      <textarea placeholder="Reply to this ticket..." rows="4" required></textarea>
+      <button type="submit">Send Reply</button>
+    </form>
+  </main>
+</body>
+</html>

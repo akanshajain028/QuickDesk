@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuickDesk - Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <h1>QuickDesk</h1>
+    <nav>
+      <a href="create-ticket.html">New Ticket</a>
+      <a href="profile.html">Profile</a>
+      <a href="login.html">Logout</a>
+    </nav>
+  </header>
+
+  <main class="dashboard">
+    <div class="filters">
+      <input type="text" placeholder="Search by Subject or Category..." />
+      <select>
+        <option value="all">All</option>
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+      </select>
+      <select>
+        <option value="latest">Latest</option>
+        <option value="most-replied">Most Replied</option>
+      </select>
+    </div>
+
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Subject</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>#101</td>
+          <td><a href="ticket.html">Unable to Login</a></td>
+          <td>Authentication</td>
+          <td><span class="badge open">Open</span></td>
+          <td>Aug 2, 2025</td>
+        </tr>
+        <tr>
+          <td>#102</td>
+          <td><a href="ticket.html">UI Bug on Dashboard</a></td>
+          <td>UI</td>
+          <td><span class="badge resolved">Resolved</span></td>
+          <td>Aug 1, 2025</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
