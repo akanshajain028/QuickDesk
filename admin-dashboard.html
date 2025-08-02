@@ -5,6 +5,85 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - QuickDesk</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      background-color: #0d6efd;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+    }
+    .dashboard {
+      padding: 30px;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #0d6efd;
+      color: white;
+    }
+    .small-btn {
+      padding: 6px 10px;
+      font-size: 13px;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .small-btn:hover {
+      background-color: #084fc7;
+    }
+    .ticket-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .ticket-form input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .ticket-form button {
+      padding: 10px 15px;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .ticket-form button:hover {
+      background-color: #084fc7;
+    }
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -26,27 +105,102 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>Jane Smith</td>
-          <td>jane@example.com</td>
-          <td>User</td>
-          <td><button class="small-btn">Promote</button></td>
-        </tr>
-        <tr>
-          <td>Agent Kumar</td>
-          <td>kumar@support.com</td>
-          <td>Agent</td>
-          <td><button class="small-btn">Demote</button></td>
-        </tr>
-      </tbody>
+      <tbody id="userTableBody"></tbody>
     </table>
 
-    <h2 style="margin-top: 40px;">Category Management</h2>
-    <form class="ticket-form">
-      <input type="text" placeholder="New Category Name" />
+    <h2>Category Management</h2>
+    <form class="ticket-form" onsubmit="addCategory(event)">
+      <input type="text" id="newCategory" placeholder="New Category Name" required />
       <button type="submit">Add Category</button>
     </form>
+
+    <table class="ticket-table">
+      <thead>
+        <tr>
+          <th>Category Name</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="categoryTableBody"></tbody>
+    </table>
   </main>
+
+  <script>
+    const userTableBody = document.getElementById("userTableBody");
+    const categoryTableBody = document.getElementById("categoryTableBody");
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    function renderUsers() {
+      userTableBody.innerHTML = "";
+      users.forEach((user, index) => {
+        if (user.role === "admin") return;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>
+            ${user.role === "employee"
+              ? `<button class="small-btn" onclick="changeRole(${index}, 'agent')">Promote to Agent</button>`
+              : user.role === "agent"
+              ? `<button class="small-btn" onclick="changeRole(${index}, 'employee')">Demote to Employee</button>`
+              : ""}
+          </td>`;
+        userTableBody.appendChild(row);
+      });
+    }
+
+    function changeRole(index, newRole) {
+      users[index].role = newRole;
+      localStorage.setItem("users", JSON.stringify(users));
+      renderUsers();
+      alert(`✅ Role updated to ${newRole}`);
+    }
+
+    function addCategory(event) {
+      event.preventDefault();
+      const input = document.getElementById("newCategory");
+      const newCat = input.value.trim();
+
+      if (!newCat) return;
+
+      let categories = JSON.parse(localStorage.getItem("categories")) || [];
+
+      if (categories.includes(newCat)) {
+        alert("❌ Category already exists.");
+        return;
+      }
+
+      categories.push(newCat);
+      localStorage.setItem("categories", JSON.stringify(categories));
+      input.value = "";
+      renderCategories();
+    }
+
+    function deleteCategory(index) {
+      let categories = JSON.parse(localStorage.getItem("categories")) || [];
+      const categoryName = categories[index];
+      if (confirm(`Are you sure you want to delete category "${categoryName}"?`)) {
+        categories.splice(index, 1);
+        localStorage.setItem("categories", JSON.stringify(categories));
+        renderCategories();
+      }
+    }
+
+    function renderCategories() {
+      const categories = JSON.parse(localStorage.getItem("categories")) || [];
+      categoryTableBody.innerHTML = categories
+        .map((cat, i) => `
+          <tr>
+            <td>${cat}</td>
+            <td><button class="small-btn" onclick="deleteCategory(${i})">Delete</button></td>
+          </tr>`)
+        .join("");
+    }
+
+    // Initialize on load
+    renderUsers();
+    renderCategories();
+  </script>
 </body>
 </html>
